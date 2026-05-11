@@ -1,0 +1,37 @@
+name: Daily Mosaic Generation
+
+on:
+  schedule:
+    - cron: '0 18 * * *'   # 毎日AM3:00 JST
+  workflow_dispatch:        # 手動実行ボタンも有効化
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Python 3.11 をセットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: ライブラリをインストール
+        run: pip install Pillow numpy
+
+      - name: モザイク生成を実行
+        run: |
+          cd scripts
+          python collect_images.py
+          python generate_mosaic.py
+          python build_json.py
+
+      - name: 生成ファイルをコミット＆プッシュ
+        run: |
+          git config user.name  "mosaic-bot"
+          git config user.email "bot@github.com"
+          git add data/
+          git diff --staged --quiet || git commit -m "🎨 mosaic $(date +%Y-%m-%d)"
+          git push
