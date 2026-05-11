@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>武田舞彩 | 日めくりカレンダー</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Shippori+Mincho:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  padding:30px 12px 80px;
+  font-family:'Noto Serif JP',serif;
+  position:relative;
+  overflow-x:hidden;
+}
+
+/* ===== 背景：田舎の漆喰壁（温かみのあるクリーム） ===== */
+.wall-bg {
+  position:fixed; inset:0; z-index:0;
+  background-color:#e8dfc8;
+}
+/* 漆喰のムラ・温もり */
+.wall-bg::before {
+  content:'';
+  position:absolute; inset:0;
+  background-image:
+    radial-gradient(ellipse 120px 90px at 10% 10%,  rgba(255,245,200,.35) 0%, transparent 70%),
+    radial-gradient(ellipse 160px 120px at 85% 18%, rgba(210,190,140,.25) 0%, transparent 70%),
+    radial-gradient(ellipse 80px 100px at 30% 52%,  rgba(240,225,180,.20) 0%, transparent 70%),
+    radial-gradient(ellipse 130px 80px at 72% 70%,  rgba(220,200,155,.22) 0%, transparent 70%),
+    radial-gradient(ellipse 100px 60px at 18% 88%,  rgba(255,240,190,.18) 0%, transparent 70%),
+    radial-gradient(ellipse 90px 110px at 90% 82%,  rgba(195,175,130,.20) 0%, transparent 70%);
+}
+/* 細かい漆喰の質感ライン */
+.wall-bg::after {
+  content:'';
+  position:absolute; inset:0;
+  background-image:
+    repeating-linear-gradient(
+      80deg,
+      transparent 0px, transparent 32px,
+      rgba(180,155,100,.03) 32px, rgba(180,155,100,.03) 33px
+    ),
+    repeating-linear-gradient(
+      172deg,
+      transparent 0px, transparent 48px,
+      rgba(160,135,85,.025) 48px, rgba(160,135,85,.025) 49px
+    );
+}
+/* 木材の幅木（下部）：明るい木目 */
+.wall-bottom {
+  position:fixed; bottom:0; left:0; right:0; height:32px;
+  background:linear-gradient(180deg,#c9a96e 0%,#b08a50 55%,#8a6830 100%);
+  z-index:1;
+  box-shadow:0 -2px 8px rgba(0,0,0,.18);
+}
+.wall-bottom::before {
+  content:'';
+  position:absolute; inset:0;
+  background:repeating-linear-gradient(
+    90deg,
+    transparent 0, transparent 55px,
+    rgba(255,255,255,.07) 55px, rgba(255,255,255,.07) 56px
+  );
+}
+
+/* ===== ページ全体（壁の上） ===== */
+.page-wrap {
+  position:relative; z-index:2;
+  width:100%; max-width:420px;
+  display:flex; flex-direction:column; align-items:center;
+}
+
+/* ===== 釘＋紐 吊り下げシステム ===== */
+.hanger-wrap {
+  position:relative;
+  width:200px;
+  height:82px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  margin-bottom:-2px;
+  z-index:10;
+}
+.nail {
+  position:absolute;
+  top:0; left:50%;
+  transform:translateX(-50%);
+  z-index:12;
+  display:flex; flex-direction:column; align-items:center;
+}
+.nail-head {
+  width:18px; height:18px; border-radius:50%;
+  background:radial-gradient(circle at 38% 32%, #e8e8e8 0%, #aaa 45%, #666 100%);
+  box-shadow:0 2px 5px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.4);
+  position:relative;
+}
+.nail-head::after {
+  content:''; position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%) rotate(30deg);
+  width:9px; height:1.5px;
+  background:rgba(0,0,0,.35); border-radius:1px;
+}
+.nail-shaft {
+  width:4px; height:12px;
+  background:linear-gradient(180deg,#bbb 0%,#888 60%,#666 100%);
+  border-radius:0 0 2px 2px;
+}
+/* SVG紐：釘に引っかかってカレンダーへ垂れる */
+.rope-svg {
+  position:absolute;
+  top:8px; left:50%;
+  transform:translateX(-50%);
+  z-index:11;
+  overflow:visible;
+}
+
+/* ===== カレンダー本体 ===== */
+.cal-wrap {
+  width:100%;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+  filter:drop-shadow(0 8px 24px rgba(0,0,0,.45)) drop-shadow(0 2px 4px rgba(0,0,0,.3));
+}
+
+/* パンチ穴エリア（クリップ） */
+.cal-clip {
+  background:linear-gradient(180deg,#f0e8cc 0%,#ddd0a8 100%);
+  height:20px; border-radius:6px 6px 0 0;
+  position:relative; z-index:5;
+  display:flex; align-items:center; justify-content:center;
+  gap:80px;
+}
+.cal-clip::before, .cal-clip::after {
+  content:'';
+  width:10px; height:10px;
+  border-radius:50%;
+  background:rgba(100,70,20,.22);
+  box-shadow:inset 0 1px 2px rgba(80,50,10,.3);
+}
+.clip-text {
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  font-size:7px; color:#b8a060; letter-spacing:1px; white-space:nowrap;
+}
+
+/* 本文 */
+.cal-body {
+  background:#fff;
+  border:1px solid #ccc;
+  position:relative;
+  overflow:hidden;
+}
+/* 紙の端の影 */
+.cal-body::before {
+  content:'';
+  position:absolute; right:0; top:0; bottom:0; width:6px;
+  background:linear-gradient(90deg,transparent,rgba(0,0,0,.08));
+  z-index:10; pointer-events:none;
+}
+.cal-body::after {
+  content:'';
+  position:absolute; left:0; bottom:0; right:0; height:6px;
+  background:linear-gradient(180deg,transparent,rgba(0,0,0,.07));
+  z-index:10; pointer-events:none;
+}
+
+/* めくりアニメ */
+@keyframes flip {
+  0%   { transform:rotateX(0deg) perspective(600px); }
+  35%  { transform:rotateX(-88deg) perspective(600px); opacity:.1; }
+  65%  { transform:rotateX(88deg) perspective(600px);  opacity:.1; }
+  100% { transform:rotateX(0deg) perspective(600px); opacity:1; }
+}
+.flipping { animation:flip .6s ease; transform-origin:top center; }
+
+/* ===== 年バー ===== */
+.year-bar {
+  background:#f5e9c0;
+  color:#5a3e1b;
+  padding:5px 12px;
+  display:flex; justify-content:space-between; align-items:center;
+  border-bottom:3px solid #d4955a;
+}
+.year-num {
+  font-size:26px; font-weight:900; letter-spacing:4px; line-height:1;
+  color:#5a3e1b;
+}
+.artist-badge {
+  font-size:9px; letter-spacing:2px; color:#b06a30;
+  font-family:'Shippori Mincho',serif;
+  border:1px solid #d4955a; padding:2px 7px; border-radius:2px;
+  background:#fff8e8;
+}
+
+/* ===== メイングリッド ===== */
+.main-grid {
+  display:grid; grid-template-columns:70px 1fr 78px;
+  border-bottom:2px solid #d4b87a; min-height:185px;
+}
+
+/* 左列 */
+.col-l {
+  border-right:2px solid #d4b87a;
+  padding:10px 4px 8px;
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  background:#fdf8ec;
+}
+.wday-k {
+  font-size:42px; font-weight:900; line-height:1; writing-mode:vertical-rl;
+  text-shadow:2px 2px 0 rgba(180,130,60,.12);
+  color:#5a3e1b;
+}
+.wday-k.sun { color:#c0573a; }
+.wday-k.sat { color:#5a7a9a; }
+.wday-en {
+  font-size:9px; font-weight:700; letter-spacing:1px;
+  border:1px solid #c8a86a; padding:1px 3px; margin-top:5px;
+  background:#fff8e8; color:#7a5a2a;
+}
+.rokuyo {
+  font-size:9px; font-weight:700; color:#b06a30;
+  border:1px solid #d4955a; padding:2px 3px;
+  writing-mode:vertical-rl; margin-top:5px;
+  background:#fff8e8;
+}
+.prev-mo-hint { margin-top:auto; font-size:8px; color:#b8a080; text-align:center; }
+
+/* 中央列 */
+.col-c {
+  display:flex; align-items:center; justify-content:center;
+  position:relative; overflow:hidden; padding:6px 0;
+  background:#fffdf5;
+}
+/* 薄い円形ウォーターマーク */
+.date-watermark {
+  position:absolute;
+  width:160px; height:160px;
+  border-radius:50%;
+  border:12px solid rgba(212,180,100,.10);
+  top:50%; left:50%; transform:translate(-50%,-50%);
+}
+.date-watermark::before {
+  content:'';
+  position:absolute; inset:10px;
+  border-radius:50%;
+  border:4px solid rgba(212,180,100,.07);
+}
+.date-n {
+  font-size:132px; font-weight:900; line-height:1;
+  position:relative; z-index:2; letter-spacing:-8px;
+  color:#3a2a0e;
+  text-shadow:4px 4px 0 rgba(180,130,50,.10);
+}
+
+/* 右列 */
+.col-r {
+  border-left:2px solid #d4b87a;
+  padding:6px 4px;
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  background:#fdf8ec;
+}
+.gengou {
+  font-size:9px; font-weight:700; writing-mode:vertical-rl;
+  text-orientation:upright;
+  line-height:1.4; color:#7a6040;
+  align-self:center;
+  letter-spacing:2px;
+}
+.month-row { display:flex; align-items:flex-end; gap:1px; margin:4px 0; }
+.month-n {
+  font-size:40px; font-weight:900; line-height:1;
+  writing-mode:vertical-rl;
+  text-orientation:upright;
+  color:#3a2a0e;
+}
+.month-sfx { font-size:13px; font-weight:900; color:#3a2a0e; }
+.ry-badge {
+  font-size:16px; font-weight:900;
+  border:2px solid #d4955a; border-radius:50%;
+  width:28px; height:28px;
+  display:flex; align-items:center; justify-content:center;
+  background:#fff8e8; color:#b06a30;
+}
+.next-live-r {
+  font-size:7.5px; writing-mode:vertical-rl; color:#9a7a50;
+  margin-top:auto; line-height:1.5; max-height:80px; overflow:hidden;
+}
+
+/* ===== メッセージバー ===== */
+.msg-bar {
+  border-bottom:2px solid #d4b87a;
+  display:flex; align-items:center; gap:10px;
+  padding:8px 12px; min-height:58px;
+  background:linear-gradient(135deg,#fffdf0 0%,#fdf5dc 100%);
+  position:relative;
+}
+/* アクセント線：テラコッタ */
+.msg-bar::before {
+  content:'';
+  position:absolute; left:0; top:0; bottom:0; width:4px;
+  background:#d4955a;
+}
+.fortune-box {
+  border:1.5px solid #d4b060; padding:3px 5px; min-width:38px;
+  text-align:center; flex-shrink:0; line-height:1.3;
+  background:#fff8e8;
+}
+.fortune-big { font-size:18px; font-weight:900; display:block; color:#b06a30; }
+.fortune-sm  { font-size:8px; color:#9a7a50; }
+.msg-text { font-size:13px; font-weight:700; line-height:1.65; flex:1; letter-spacing:.4px; color:#3a2a0e; }
+.msg-src { font-size:9px; color:#b8a080; flex-shrink:0; writing-mode:vertical-rl; }
+
+/* ===== ミニカレンダー ===== */
+.mini-row {
+  display:grid; grid-template-columns:1fr 2px 1fr;
+  border-bottom:2px solid #d4b87a;
+  background:#fdf8ec;
+}
+.mini-cal { padding:6px 8px; }
+.mini-title { font-size:9px; font-weight:700; text-align:center; margin-bottom:3px; color:#7a5a2a; }
+.mini-grid { display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-size:8px; line-height:1.9; color:#5a3e1b; }
+.mini-grid .hd { font-weight:700; color:#7a5a2a; border-bottom:0.5px solid #e8d4a8; }
+.mini-grid .sc { color:#c0573a; }
+.mini-grid .ss { color:#5a7a9a; }
+.mini-grid .td {
+  background:#d4955a; color:#fff; border-radius:50%;
+  width:14px; height:14px;
+  display:inline-flex; align-items:center; justify-content:center; font-size:8px;
+}
+.mini-divider { background:#d4b87a; }
+
+/* ===== LIVEセクション ===== */
+.live-sec {
+  border-bottom:2px solid #d4b87a;
+  background:#7a5a30;
+  color:#fff; padding:10px 13px;
+}
+.live-hd {
+  font-size:8px; letter-spacing:4px; color:#e8c88a;
+  margin-bottom:6px;
+  display:flex; align-items:center; gap:8px;
+}
+.live-hd::before,.live-hd::after {
+  content:''; flex:1; height:.5px; background:#a07840;
+}
+.live-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:6px 0; border-bottom:.5px solid #9a7848;
+}
+.live-row:last-child { border:none; }
+.live-name { font-size:12px; font-weight:700; letter-spacing:.5px; color:#fff8e8; }
+.live-date { font-size:9px; color:#c8a870; margin-top:2px; }
+.live-cd {
+  font-size:11px; font-weight:700;
+  background:#e8a040; color:#fff;
+  padding:3px 10px; border-radius:2px; white-space:nowrap; flex-shrink:0;
+  letter-spacing:.5px;
+}
+.live-cd.past  { background:#9a8060; color:#c8b890; font-size:9px; }
+.live-cd.today { background:#5a9a50; }
+
+/* ===== ストリークセクション ===== */
+.streak-sec {
+  padding:12px 13px; border-bottom:2px solid #d4b87a;
+  background:#fffdf5;
+}
+.streak-top {
+  display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;
+}
+.streak-lbl { font-size:9px; color:#b8a080; letter-spacing:3px; }
+.streak-counts {
+  display:flex; align-items:baseline; gap:14px;
+}
+.streak-n { font-size:28px; font-weight:900; line-height:1; color:#5a3e1b; }
+.streak-n small { font-size:11px; font-weight:400; color:#b8a080; margin-left:3px; }
+.streak-total {
+  font-size:16px; font-weight:700; line-height:1; color:#b8a080;
+  border-left:1px solid #e8d4a8; padding-left:14px;
+}
+.streak-total small { font-size:10px; font-weight:400; margin-left:2px; }
+
+/* ドット */
+.dots-wrap {
+  display:grid; grid-template-columns:repeat(10,1fr); gap:4px;
+}
+.dot {
+  aspect-ratio:1;
+  border-radius:3px;
+  border:1px solid #e8d4a8;
+  background:#fdf0d0;
+  position:relative;
+  transition:background .3s, border-color .3s;
+}
+.dot::after {
+  content:attr(data-n);
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:7px; color:#d4c090;
+}
+.dot.done { background:#e8a040; border-color:#c88020; }
+.dot.done::after { color:rgba(255,255,255,.6); }
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.25)} }
+.dot.new-dot { animation:pulse .7s ease 3; }
+
+/* ===== フッター ===== */
+.cal-footer {
+  padding:10px 13px;
+  display:flex; justify-content:space-between; align-items:center;
+  background:#f0e4c0;
+  border-top:2px solid #d4b87a;
+}
+.footer-name { font-size:14px; font-weight:900; letter-spacing:2px; font-family:'Shippori Mincho',serif; color:#5a3e1b; }
+.footer-links { display:flex; gap:12px; }
+.footer-links a { font-size:9px; color:#b06a30; text-decoration:none; letter-spacing:1px; border-bottom:.5px solid #d4955a; }
+.footer-links a:hover { color:#c07840; }
+
+/* ===== めくりヒント ===== */
+.tap-hint {
+  margin-top:10px;
+  text-align:center; font-size:10px; color:rgba(90,60,20,.55);
+  letter-spacing:3px;
+  text-shadow:0 1px 2px rgba(255,240,180,.5);
+}
+@keyframes blink { 0%,100%{opacity:.3} 50%{opacity:.8} }
+.blink { animation:blink 2.2s ease-in-out infinite; }
+
+/* ===== 影・紙の厚み感 ===== */
+.paper-stack {
+  position:absolute;
+  left:3px; right:-3px; top:3px; bottom:-3px;
+  background:#ecdfc0; z-index:-1;
+  border:1px solid #d8c898;
+}
+.paper-stack-2 {
+  position:absolute;
+  left:5px; right:-5px; top:5px; bottom:-5px;
+  background:#e0d0a8; z-index:-2;
+  border:1px solid #ccba88;
+}
+
+/* ===== モーダル ===== */
+.modal-bg {
+  display:none; position:fixed; inset:0;
+  background:rgba(60,40,10,.7); z-index:300;
+  align-items:center; justify-content:center;
+}
+.modal-bg.open { display:flex; }
+.modal {
+  background:#fffdf0; width:90%; max-width:340px;
+  border-radius:4px; overflow:hidden;
+}
+@keyframes mup { from{transform:translateY(24px);opacity:0} to{transform:translateY(0);opacity:1} }
+.modal { animation:mup .3s ease; }
+.modal-hd {
+  background:#7a5a30; color:#fff8e8;
+  padding:13px 15px;
+  display:flex; justify-content:space-between; align-items:center;
+  font-size:11px; letter-spacing:3px;
+  border-bottom:3px solid #e8a040;
+}
+.modal-bd { padding:20px 16px; }
+.modal-fortune { font-size:36px; font-weight:900; color:#c07020; text-align:center; margin-bottom:10px; }
+.modal-msg { font-size:15px; font-weight:700; line-height:1.8; text-align:center; margin-bottom:12px; color:#3a2a0e; }
+.modal-info { font-size:11px; color:#b8a080; text-align:center; }
+.modal-info.red { color:#c07040; }
+.modal-btn {
+  display:block; width:100%; padding:14px;
+  background:#7a5a30; color:#fff8e8; border:none;
+  font-size:11px; letter-spacing:3px; font-family:inherit; cursor:pointer;
+}
+.modal-btn:hover { background:#9a7848; }
+
+/* ===== モザイクへの導線 ===== */
+.modal-mosaic-btn {
+  display:block;
+  font-family:'Shippori Mincho',serif;
+  font-size:11px; letter-spacing:2px;
+  color:#fff8e8;
+  background:linear-gradient(180deg,#d4955a 0%,#b07040 100%);
+  text-decoration:none;
+  text-align:center;
+  padding:10px;
+  border-top:1px solid #d4b87a;
+  transition:opacity .2s;
+}
+.modal-mosaic-btn:hover { opacity:.85; }
+
+.mosaic-banner {
+  border-top:1px solid #e0d0a0;
+  padding:10px 14px;
+  display:flex; justify-content:space-between; align-items:center;
+  background:#fffdf5;
+}
+.mosaic-banner-label {
+  font-size:8px; color:#b06a30;
+  letter-spacing:2px;
+  font-family:'Shippori Mincho',serif;
+}
+.mosaic-banner-link {
+  display:flex; align-items:center; gap:6px;
+  font-family:'Shippori Mincho',serif;
+  font-size:11px; color:#5a3e1b;
+  text-decoration:none; letter-spacing:1px;
+  border:1px solid #d4b87a;
+  background:#fff8e8;
+  padding:5px 12px; border-radius:2px;
+  transition:background .2s;
+}
+.mosaic-banner-link:hover { background:#f5e9c0; }
+.mosaic-banner-arrow { color:#d4955a; font-size:14px; }
+</style>
+</head>
+<body>
+
+<!-- 背景壁 -->
+<div class="wall-bg"></div>
+<div class="wall-bottom"></div>
+
+<div class="page-wrap">
+
+  <!-- 釘＋紐（一体型） -->
+  <div class="hanger-wrap">
+    <!-- 釘 -->
+    <div class="nail">
+      <div class="nail-head"></div>
+      <div class="nail-shaft"></div>
+    </div>
+    <!-- 紐：釘頭に引っかかったUの字 → 両端がカレンダー上端へ -->
+    <svg class="rope-svg" width="200" height="80" viewBox="0 0 200 80">
+      <defs>
+        <!-- 麻紐テクスチャ：太めのストロークにパターン重ね -->
+        <pattern id="ropePattern" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(80)">
+          <rect width="6" height="6" fill="#c89a55"/>
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#9a7240" stroke-width="1.5" opacity=".6"/>
+          <line x1="3" y1="0" x2="3" y2="6" stroke="#e0b870" stroke-width=".8" opacity=".4"/>
+        </pattern>
+        <filter id="ropeShadow">
+          <feDropShadow dx="1" dy="1" stdDeviation="1" flood-opacity=".25"/>
+        </filter>
+      </defs>
+
+      <!-- 左の紐：釘付近(100,14)から左下(30,78)へカーブ -->
+      <path d="M 100,14 C 88,18 55,30 30,78"
+            fill="none" stroke="url(#ropePattern)" stroke-width="5.5"
+            stroke-linecap="round" filter="url(#ropeShadow)"/>
+      <!-- 右の紐：釘付近(100,14)から右下(170,78)へカーブ -->
+      <path d="M 100,14 C 112,18 145,30 170,78"
+            fill="none" stroke="url(#ropePattern)" stroke-width="5.5"
+            stroke-linecap="round" filter="url(#ropeShadow)"/>
+
+      <!-- 釘に引っかかっているループ部分 -->
+      <path d="M 88,20 Q 100,8 112,20"
+            fill="none" stroke="url(#ropePattern)" stroke-width="5"
+            stroke-linecap="round"/>
+
+      <!-- 紐の影（奥行き感） -->
+      <path d="M 100,14 C 88,18 55,30 30,78"
+            fill="none" stroke="rgba(80,50,10,.15)" stroke-width="7"
+            stroke-linecap="round"/>
+      <path d="M 100,14 C 112,18 145,30 170,78"
+            fill="none" stroke="rgba(80,50,10,.15)" stroke-width="7"
+            stroke-linecap="round"/>
+    </svg>
+  </div>
+
+  <!-- カレンダー -->
+  <div class="cal-wrap" style="position:relative;">
+    <div class="paper-stack-2"></div>
+    <div class="paper-stack"></div>
+    <div class="cal-clip">
+      <span class="clip-text">▲ 各ページ1枚ずつ取ってください ▲</span>
+    </div>
+    <div class="cal-body" id="calBody" onclick="handleTap()">
+
+      <!-- 年バー -->
+      <div class="year-bar">
+        <span class="year-num" id="yNum">----</span>
+        <span class="artist-badge">武田舞彩 OFFICIAL</span>
+      </div>
+
+      <!-- メイングリッド -->
+      <div class="main-grid">
+        <div class="col-l">
+          <div class="wday-k" id="wdayK">月</div>
+          <div class="wday-en" id="wdayEn">[MON]</div>
+          <div class="rokuyo" id="ryEl">大安</div>
+          <div class="prev-mo-hint" id="prevMoHint"></div>
+        </div>
+        <div class="col-c">
+          <div class="date-watermark"></div>
+          <div class="date-n" id="dNum">--</div>
+        </div>
+        <div class="col-r">
+          <div class="gengou" id="gengouEl">令和<br>--年</div>
+          <div class="month-row">
+            <span class="month-n" id="mNum">-</span>
+            <span class="month-sfx">月</span>
+          </div>
+          <div class="ry-badge" id="ryBadge">大</div>
+          <div class="next-live-r" id="nextLiveR">LIVE INFO</div>
+        </div>
+      </div>
+
+      <!-- メッセージ -->
+      <div class="msg-bar">
+        <div class="fortune-box">
+          <span class="fortune-big" id="fKanji">吉</span>
+          <span class="fortune-sm"  id="fLabel">中吉</span>
+        </div>
+        <div class="msg-text" id="msgText">タップして舞彩からの一言を受け取ろう</div>
+        <div class="msg-src">— 舞彩</div>
+      </div>
+
+      <!-- ミニカレンダー -->
+      <div class="mini-row">
+        <div class="mini-cal">
+          <div class="mini-title" id="prevMoTitle">前月</div>
+          <div class="mini-grid" id="prevMoGrid"></div>
+        </div>
+        <div class="mini-divider"></div>
+        <div class="mini-cal">
+          <div class="mini-title" id="thisMoTitle">今月</div>
+          <div class="mini-grid" id="thisMoGrid"></div>
+        </div>
+      </div>
+
+      <!-- LIVE -->
+      <div class="live-sec">
+        <div class="live-hd">LIVE SCHEDULE</div>
+        <div id="liveList"></div>
+      </div>
+
+      <!-- ストリーク -->
+      <div class="streak-sec">
+        <div class="streak-top">
+          <span class="streak-lbl">DAILY STREAK</span>
+          <div class="streak-counts">
+            <span class="streak-total" id="totalN">0<small>日累計</small></span>
+            <span class="streak-n" id="streakN">0<small>日連続</small></span>
+          </div>
+        </div>
+        <div class="dots-wrap" id="dotWrap"></div>
+      </div>
+
+      <!-- モザイクバナー -->
+      <div class="mosaic-banner">
+        <div class="mosaic-banner-label">FAN MOSAIC ART</div>
+        <a href="mosaic.html" class="mosaic-banner-link">
+          今日のモザイクを見る <span class="mosaic-banner-arrow">→</span>
+        </a>
+      </div>
+
+      <!-- フッター -->
+      <div class="cal-footer">
+        <span class="footer-name">武田舞彩</span>
+        <div class="footer-links">
+          <a href="https://maayatakeda-3.jimdosite.com/" target="_blank" rel="noopener">OFFICIAL</a>
+          <a href="https://www.instagram.com/maaya__takeda/" target="_blank" rel="noopener">Instagram</a>
+          <a href="https://x.com/MAAYA__TAKEDA" target="_blank" rel="noopener">X</a>
+          <a href="https://www.tiktok.com/@maaya_takeda" target="_blank" rel="noopener">TikTok</a>
+        </div>
+      </div>
+
+    </div><!-- /cal-body -->
+  </div>
+
+  <div class="tap-hint blink" id="tapHint">— TAP TO TEAR OFF —</div>
+
+</div><!-- /page-wrap -->
+
+<!-- モーダル -->
+<div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-hd">
+      <span>TODAY'S MESSAGE</span>
+      <span id="modalDateEl"></span>
+    </div>
+    <div class="modal-bd">
+      <div class="modal-fortune" id="modalFortune">大吉</div>
+      <div class="modal-msg"     id="modalMsg"></div>
+      <div class="modal-info"    id="modalInfo"></div>
+    </div>
+    <a class="modal-mosaic-btn" href="mosaic.html">今日のモザイクアートを見る →</a>
+    <button class="modal-btn" onclick="closeModal()">— CLOSE —</button>
+  </div>
+</div>
+
+<script>
+const MESSAGES = [
+  {k:'大',l:'大吉', t:'どんなに不格好でも、自分の言葉で歌い続けることが私の全て。'},
+  {k:'中',l:'中吉', t:'泣いた夜も、怒った朝も、全部ひっくるめて今日の私を生きよう。'},
+  {k:'吉',l:'吉',   t:'ギターの弦が震えるたびに、誰かの心に届いてほしいと思う。'},
+  {k:'大',l:'大吉', t:'きれいじゃない感情こそ、本当の言葉が宿る場所。'},
+  {k:'小',l:'小吉', t:'遠回りした道の分だけ、歌える曲が増えていった。'},
+  {k:'吉',l:'吉',   t:'自分をすり減らす必要はない。風を切って歩けばいい。'},
+  {k:'中',l:'中吉', t:'LAの路上で歌っていた頃の私が、今日の私を支えている。'},
+  {k:'大',l:'大吉', t:'あなたの今日が、誰かの「わかる」になればいい。'},
+  {k:'吉',l:'吉',   t:'無理しなくていい。でも、本音だけは隠さないで。'},
+  {k:'末',l:'末吉', t:'ゆっくりな日も、それはそれで正解。焦らなくていい。'},
+  {k:'中',l:'中吉', t:'好きな音楽を聴いて、深呼吸して。それだけで今日は十分。'},
+  {k:'大',l:'大吉', t:'福井の空の広さを思い出すと、なんでも小さく見えてくる。'},
+  {k:'吉',l:'吉',   t:'Ed Sheeranに背中を押してもらったように、私の歌があなたを押せたら。'},
+  {k:'中',l:'中吉', t:'ミツバチみたいに、花から花へ。今日も自分のペースで。'},
+  {k:'小',l:'小吉', t:'「なす」くらいの元気で、いらないものを手放してみよう。'},
+];
+const ROKUYO  = ['大安','赤口','先勝','友引','先負','仏滅'];
+const RY_SHORT = {大安:'大',赤口:'赤',先勝:'先',友引:'友',先負:'負',仏滅:'仏'};
+const LIVES = [
+  {name:'武田舞彩 LIVE', date:'2026-06-06', venue:'代々木 LIVE STUDIO LODGE'},
+];
+const K_LAST='maaya_last', K_STREAK='maaya_streak', K_TOTAL='maaya_total';
+
+function p2(n){ return String(n).padStart(2,'0'); }
+function dateStr(d){ return `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`; }
+function strHash(s){ let h=0; for(const c of s) h=(h*31+c.charCodeAt(0))&0x7fffffff; return h; }
+function calcRokuyo(y,m,d){ return ROKUYO[(m+d)%6]; }
+function calcGengou(y){
+  if(y>=2019) return `令和${y-2018}年`;
+  if(y>=1989) return `平成${y-1988}年`;
+  return `${y}年`;
+}
+function buildMiniCal(y,m,todayD){
+  const WD=['日','月','火','水','木','金','土'];
+  const first=new Date(y,m-1,1).getDay();
+  const days=new Date(y,m,0).getDate();
+  let h=WD.map((w,i)=>`<div class="hd${i===0?' sc':i===6?' ss':''}">${w}</div>`).join('');
+  for(let i=0;i<first;i++) h+='<div></div>';
+  for(let d=1;d<=days;d++){
+    const dow=(first+d-1)%7;
+    const cls=dow===0?'sc':dow===6?'ss':'';
+    h += d===todayD
+      ? `<div><span class="td">${d}</span></div>`
+      : `<div class="${cls}">${d}</div>`;
+  }
+  return h;
+}
+async function fetchToday(){
+  try{
+    const r=await fetch('https://worldtimeapi.org/api/timezone/Asia/Tokyo');
+    return new Date((await r.json()).datetime);
+  }catch(e){ return new Date(); }
+}
+function renderCal(d){
+  const y=d.getFullYear(), m=d.getMonth()+1, day=d.getDate(), dow=d.getDay();
+  const WJAP=['日','月','火','水','木','金','土'];
+  const WEN=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  const ry=calcRokuyo(y,m,day);
+  document.getElementById('yNum').textContent=y;
+  document.getElementById('dNum').textContent=day;
+  document.getElementById('mNum').textContent=m;
+  document.getElementById('gengouEl').textContent=calcGengou(y);
+  const wk=document.getElementById('wdayK');
+  wk.textContent=WJAP[dow];
+  wk.className='wday-k'+(dow===0?' sun':dow===6?' sat':'');
+  document.getElementById('wdayEn').textContent=`[${WEN[dow]}]`;
+  document.getElementById('ryEl').textContent=ry;
+  document.getElementById('ryBadge').textContent=RY_SHORT[ry];
+  const nxt=LIVES.find(l=>new Date(l.date)>=d);
+  document.getElementById('nextLiveR').textContent=nxt?nxt.name:'NEXT LIVE TBA';
+  const nm=m===12?1:m+1, ny=m===12?y+1:y;
+  document.getElementById('prevMoHint').textContent=`${nm}月→`;
+  document.getElementById('prevMoTitle').textContent=`${m}月`;
+  document.getElementById('thisMoTitle').textContent=`${nm}月`;
+  document.getElementById('prevMoGrid').innerHTML=buildMiniCal(y,m,day);
+  document.getElementById('thisMoGrid').innerHTML=buildMiniCal(ny,nm,null);
+}
+function renderLive(d){
+  const t=d.getTime();
+  document.getElementById('liveList').innerHTML=LIVES.map(ev=>{
+    const diff=Math.ceil((new Date(ev.date)-t)/86400000);
+    const cd = diff>0 ? `<div class="live-cd">あと${diff}日</div>`
+              : diff===0 ? `<div class="live-cd today">TODAY!</div>`
+              : `<div class="live-cd past">終了</div>`;
+    return`<div class="live-row">
+      <div>
+        <div class="live-name">${ev.name}</div>
+        <div class="live-date">${ev.date.replace(/-/g,'/')} ｜ ${ev.venue}</div>
+      </div>${cd}
+    </div>`;
+  }).join('');
+}
+function renderStreak(streak, total){
+  document.getElementById('streakN').innerHTML=`${streak}<small>日連続</small>`;
+  document.getElementById('totalN').innerHTML=`${total}<small>日累計</small>`;
+  let h='';
+  for(let i=0;i<30;i++){
+    h+=`<div class="dot${i<streak?' done':''}" data-n="${i+1}"></div>`;
+  }
+  document.getElementById('dotWrap').innerHTML=h;
+}
+function pickMsg(ds){ return MESSAGES[strHash(ds)%MESSAGES.length]; }
+function applyMsg(msg){
+  document.getElementById('fKanji').textContent=msg.k;
+  document.getElementById('fLabel').textContent=msg.l;
+  document.getElementById('msgText').textContent=msg.t;
+}
+
+let TODAY=null;
+function handleTap(){
+  if(!TODAY) return;
+  const ts=dateStr(TODAY);
+  const last=localStorage.getItem(K_LAST)||'';
+  let streak=parseInt(localStorage.getItem(K_STREAK)||'0');
+  let total=parseInt(localStorage.getItem(K_TOTAL)||'0');
+  const alreadyDone=(last===ts);
+  if(!alreadyDone){
+    if(last){
+      const diff=Math.round((TODAY-new Date(last))/86400000);
+      streak=diff===1?streak+1:1;
+    } else { streak=1; }
+    total+=1;
+    localStorage.setItem(K_LAST,ts);
+    localStorage.setItem(K_STREAK,streak);
+    localStorage.setItem(K_TOTAL,total);
+  }
+  const msg=pickMsg(ts);
+  applyMsg(msg);
+  renderStreak(streak, total);
+  const b=document.getElementById('calBody');
+  b.classList.remove('flipping'); void b.offsetWidth; b.classList.add('flipping');
+  if(!alreadyDone){
+    const th=document.getElementById('tapHint');
+    th.textContent='— めくりました —'; th.classList.remove('blink');
+    setTimeout(()=>{
+      const dots=document.querySelectorAll('.dot');
+      if(dots[streak-1]) dots[streak-1].classList.add('new-dot');
+    },650);
+  }
+  document.getElementById('modalFortune').textContent=msg.l;
+  document.getElementById('modalMsg').textContent=msg.t;
+  document.getElementById('modalDateEl').textContent=ts.replace(/-/g,'/');
+  const infoEl=document.getElementById('modalInfo');
+  infoEl.textContent=alreadyDone
+    ?`今日はすでにめくっています｜${streak}日連続・累計${total}日`
+    :(streak===1?`はじまりの一枚 ✦ 累計${total}日目`:`${streak}日連続達成！累計${total}日目`);
+  infoEl.className='modal-info'+(alreadyDone?' red':'');
+  document.getElementById('modalBg').classList.add('open');
+}
+function closeModal(){ document.getElementById('modalBg').classList.remove('open'); }
+
+async function init(){
+  TODAY=await fetchToday();
+  renderCal(TODAY);
+  renderLive(TODAY);
+  const streak=parseInt(localStorage.getItem(K_STREAK)||'0');
+  const total=parseInt(localStorage.getItem(K_TOTAL)||'0');
+  renderStreak(streak, total);
+  const ts=dateStr(TODAY);
+  if(localStorage.getItem(K_LAST)===ts){
+    applyMsg(pickMsg(ts));
+    const th=document.getElementById('tapHint');
+    th.textContent='— 今日はめくり済みです（タップで確認） —';
+    th.classList.remove('blink');
+  }
+}
+init();
+</script>
+</body>
+</html>

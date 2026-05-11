@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>武田舞彩 | モザイクアート</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Shippori+Mincho:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  padding:30px 12px 80px;
+  font-family:'Noto Serif JP',serif;
+  position:relative;
+  overflow-x:hidden;
+}
+
+/* ===== 背景：漆喰壁（index.htmlと同じ） ===== */
+.wall-bg {
+  position:fixed; inset:0; z-index:0;
+  background-color:#e8dfc8;
+}
+.wall-bg::before {
+  content:'';
+  position:absolute; inset:0;
+  background-image:
+    radial-gradient(ellipse 120px 90px at 10% 10%,  rgba(255,245,200,.35) 0%, transparent 70%),
+    radial-gradient(ellipse 160px 120px at 85% 18%, rgba(210,190,140,.25) 0%, transparent 70%),
+    radial-gradient(ellipse 80px 100px at 30% 52%,  rgba(240,225,180,.20) 0%, transparent 70%),
+    radial-gradient(ellipse 130px 80px at 72% 70%,  rgba(220,200,155,.22) 0%, transparent 70%),
+    radial-gradient(ellipse 100px 60px at 18% 88%,  rgba(255,240,190,.18) 0%, transparent 70%),
+    radial-gradient(ellipse 90px 110px at 90% 82%,  rgba(195,175,130,.20) 0%, transparent 70%);
+}
+.wall-bg::after {
+  content:'';
+  position:absolute; inset:0;
+  background-image:
+    repeating-linear-gradient(80deg, transparent 0px, transparent 32px, rgba(180,155,100,.03) 32px, rgba(180,155,100,.03) 33px),
+    repeating-linear-gradient(172deg, transparent 0px, transparent 48px, rgba(160,135,85,.025) 48px, rgba(160,135,85,.025) 49px);
+}
+.wall-bottom {
+  position:fixed; bottom:0; left:0; right:0; height:32px;
+  background:linear-gradient(180deg,#c9a96e 0%,#b08a50 55%,#8a6830 100%);
+  z-index:1;
+  box-shadow:0 -2px 8px rgba(0,0,0,.18);
+}
+.wall-bottom::before {
+  content:'';
+  position:absolute; inset:0;
+  background:repeating-linear-gradient(90deg, transparent 0, transparent 55px, rgba(255,255,255,.07) 55px, rgba(255,255,255,.07) 56px);
+}
+
+/* ===== ページ全体 ===== */
+.page-wrap {
+  position:relative; z-index:2;
+  width:100%; max-width:480px;
+  display:flex; flex-direction:column; align-items:center;
+  gap:16px;
+}
+
+/* ===== 戻るボタン ===== */
+.back-btn {
+  align-self:flex-start;
+  display:flex; align-items:center; gap:6px;
+  font-family:'Shippori Mincho',serif;
+  font-size:12px; color:#7a5a2a;
+  text-decoration:none;
+  border:1px solid #d4b87a;
+  background:#fff8e8;
+  padding:5px 12px; border-radius:2px;
+  letter-spacing:1px;
+  transition:background .2s;
+}
+.back-btn:hover { background:#f5e9c0; }
+
+/* ===== ヘッダーカード ===== */
+.header-card {
+  width:100%;
+  background:#fff;
+  border:1px solid #ccc;
+  filter:drop-shadow(0 4px 12px rgba(0,0,0,.25));
+}
+.header-clip {
+  background:linear-gradient(180deg,#f0e8cc 0%,#ddd0a8 100%);
+  height:16px; border-radius:4px 4px 0 0;
+  display:flex; align-items:center; justify-content:center;
+  gap:80px; position:relative;
+}
+.header-clip::before, .header-clip::after {
+  content:'';
+  width:8px; height:8px; border-radius:50%;
+  background:rgba(100,70,20,.22);
+  box-shadow:inset 0 1px 2px rgba(80,50,10,.3);
+}
+.header-clip-text {
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  font-size:7px; color:#b8a060; letter-spacing:1px; white-space:nowrap;
+}
+.header-body {
+  background:#f5e9c0;
+  border-bottom:3px solid #d4955a;
+  padding:12px 16px;
+  display:flex; justify-content:space-between; align-items:center;
+}
+.header-title {
+  font-family:'Shippori Mincho',serif;
+  font-size:18px; font-weight:800;
+  color:#5a3e1b; letter-spacing:3px;
+}
+.header-sub {
+  font-size:9px; color:#b06a30; letter-spacing:2px;
+  font-family:'Shippori Mincho',serif;
+  border:1px solid #d4955a; padding:2px 7px; border-radius:2px;
+  background:#fff8e8;
+}
+.header-info {
+  padding:10px 16px 12px;
+  display:flex; justify-content:space-between; align-items:center;
+  background:#fffdf5;
+}
+.header-date {
+  font-size:11px; color:#7a5a2a; letter-spacing:1px;
+}
+.header-count {
+  font-size:11px; color:#b06a30;
+  font-family:'Shippori Mincho',serif;
+}
+
+/* ===== 検索エリア ===== */
+.search-card {
+  width:100%;
+  background:#fff;
+  border:1px solid #ccc;
+  filter:drop-shadow(0 2px 8px rgba(0,0,0,.15));
+  padding:12px 16px;
+}
+.search-label {
+  font-size:9px; color:#b06a30; letter-spacing:2px;
+  font-family:'Shippori Mincho',serif;
+  margin-bottom:8px;
+  display:block;
+}
+.search-row {
+  display:flex; gap:8px;
+}
+.search-input {
+  flex:1;
+  font-family:'Noto Serif JP',serif;
+  font-size:13px; color:#5a3e1b;
+  border:1px solid #d4b87a;
+  background:#fff8e8;
+  padding:7px 10px; border-radius:2px;
+  outline:none;
+  letter-spacing:1px;
+}
+.search-input::placeholder { color:#c8a86a; font-size:12px; }
+.search-input:focus { border-color:#d4955a; background:#fffdf5; }
+.search-btn {
+  font-family:'Shippori Mincho',serif;
+  font-size:11px; letter-spacing:1px;
+  color:#fff8e8;
+  background:linear-gradient(180deg,#d4955a 0%,#b07040 100%);
+  border:none; padding:7px 14px; border-radius:2px;
+  cursor:pointer;
+  transition:opacity .2s;
+}
+.search-btn:hover { opacity:.85; }
+.search-hint {
+  font-size:9px; color:#b8a080; margin-top:6px; letter-spacing:0.5px;
+}
+.search-clear {
+  font-size:10px; color:#b06a30; cursor:pointer;
+  text-decoration:underline; margin-top:4px;
+  display:none;
+}
+
+/* ===== モザイクエリア ===== */
+.mosaic-card {
+  width:100%;
+  background:#fff;
+  border:1px solid #ccc;
+  filter:drop-shadow(0 4px 16px rgba(0,0,0,.30));
+  position:relative;
+  overflow:hidden;
+}
+.mosaic-clip {
+  background:linear-gradient(180deg,#f0e8cc 0%,#ddd0a8 100%);
+  height:14px;
+  display:flex; align-items:center; justify-content:center;
+  gap:80px; position:relative;
+}
+.mosaic-clip::before, .mosaic-clip::after {
+  content:'';
+  width:8px; height:8px; border-radius:50%;
+  background:rgba(100,70,20,.22);
+  box-shadow:inset 0 1px 2px rgba(80,50,10,.3);
+}
+
+/* ズームコンテナ */
+.mosaic-viewport {
+  width:100%;
+  overflow:hidden;
+  position:relative;
+  touch-action:none;
+  cursor:grab;
+  background:#fffdf5;
+}
+.mosaic-viewport:active { cursor:grabbing; }
+
+.mosaic-grid-wrap {
+  transform-origin:top left;
+  transition:transform .05s linear;
+  line-height:0;
+  font-size:0;
+}
+
+/* タイル */
+.mosaic-tile {
+  display:inline-block;
+  background-size:cover;
+  background-position:center;
+  cursor:pointer;
+  transition:filter .15s, outline .15s;
+  position:relative;
+}
+.mosaic-tile:hover {
+  filter:brightness(1.25);
+  z-index:5;
+  position:relative;
+}
+.mosaic-tile.highlight {
+  outline:2px solid #d4a020;
+  filter:brightness(1.3) drop-shadow(0 0 4px #d4a020);
+  z-index:10;
+  position:relative;
+  animation:sparkle 1s ease infinite alternate;
+}
+@keyframes sparkle {
+  from { filter:brightness(1.2) drop-shadow(0 0 3px #d4a020); }
+  to   { filter:brightness(1.5) drop-shadow(0 0 8px #f0c040); }
+}
+
+/* ズームコントロール */
+.zoom-ctrl {
+  position:absolute; bottom:10px; right:10px;
+  display:flex; flex-direction:column; gap:4px;
+  z-index:20;
+}
+.zoom-btn {
+  width:32px; height:32px;
+  background:rgba(255,248,232,.92);
+  border:1px solid #d4b87a;
+  border-radius:2px;
+  font-size:18px; color:#5a3e1b;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+  box-shadow:0 2px 6px rgba(0,0,0,.2);
+  transition:background .15s;
+}
+.zoom-btn:hover { background:#f5e9c0; }
+
+/* ローディング */
+.mosaic-loading {
+  width:100%;
+  min-height:280px;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:12px;
+  background:#fffdf5;
+}
+.loading-kanji {
+  font-family:'Shippori Mincho',serif;
+  font-size:48px; font-weight:800;
+  color:#d4955a; opacity:.3;
+  animation:pulse 1.5s ease infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity:.2; } 50% { opacity:.5; }
+}
+.loading-text {
+  font-size:10px; color:#b8a080; letter-spacing:2px;
+}
+
+/* データなし */
+.mosaic-empty {
+  width:100%;
+  min-height:280px;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:10px;
+  background:#fffdf5;
+  padding:20px;
+  text-align:center;
+}
+.empty-kanji {
+  font-family:'Shippori Mincho',serif;
+  font-size:48px; color:#d4b87a; opacity:.4;
+}
+.empty-text {
+  font-size:11px; color:#b8a080; letter-spacing:1px; line-height:1.8;
+}
+.mosaic-footer-bar {
+  background:#f5e9c0;
+  border-top:2px solid #d4b87a;
+  padding:6px 12px;
+  display:flex; justify-content:space-between; align-items:center;
+}
+.mosaic-footer-text {
+  font-size:9px; color:#b06a30; letter-spacing:1px;
+}
+
+/* ===== タイル詳細モーダル ===== */
+.tile-modal-bg {
+  position:fixed; inset:0; z-index:100;
+  background:rgba(60,40,10,.65);
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none;
+  transition:opacity .25s;
+  padding:20px;
+}
+.tile-modal-bg.open {
+  opacity:1; pointer-events:all;
+}
+.tile-modal {
+  width:100%; max-width:320px;
+  background:#fff;
+  border:1px solid #ccc;
+  filter:drop-shadow(0 8px 32px rgba(0,0,0,.5));
+  transform:scale(.92);
+  transition:transform .25s;
+}
+.tile-modal-bg.open .tile-modal {
+  transform:scale(1);
+}
+.tile-modal-clip {
+  background:linear-gradient(180deg,#f0e8cc 0%,#ddd0a8 100%);
+  height:14px; position:relative;
+  display:flex; align-items:center; justify-content:center;
+  gap:60px;
+}
+.tile-modal-clip::before, .tile-modal-clip::after {
+  content:'';
+  width:8px; height:8px; border-radius:50%;
+  background:rgba(100,70,20,.22);
+}
+.tile-modal-hd {
+  background:#f5e9c0;
+  border-bottom:2px solid #d4955a;
+  padding:8px 14px;
+  display:flex; justify-content:space-between; align-items:center;
+}
+.tile-modal-title {
+  font-family:'Shippori Mincho',serif;
+  font-size:11px; font-weight:800;
+  color:#5a3e1b; letter-spacing:2px;
+}
+.tile-modal-close {
+  font-size:16px; color:#b06a30;
+  cursor:pointer; line-height:1;
+  padding:2px 6px;
+}
+.tile-modal-body {
+  padding:16px;
+  display:flex; flex-direction:column; align-items:center; gap:12px;
+  background:#fffdf5;
+}
+.tile-img-wrap {
+  width:160px; height:160px;
+  border:2px solid #d4b87a;
+  overflow:hidden;
+}
+.tile-img-wrap img {
+  width:100%; height:100%; object-fit:cover;
+}
+.tile-contributor {
+  text-align:center;
+}
+.tile-nickname {
+  font-family:'Shippori Mincho',serif;
+  font-size:16px; font-weight:700;
+  color:#5a3e1b; letter-spacing:2px;
+  display:block;
+}
+.tile-xid {
+  font-size:11px; color:#b06a30; letter-spacing:1px;
+  margin-top:3px; display:block;
+}
+.tile-position {
+  font-size:9px; color:#b8a080; letter-spacing:1px;
+}
+.tile-x-link {
+  display:inline-block;
+  font-family:'Shippori Mincho',serif;
+  font-size:10px; letter-spacing:1px;
+  color:#fff8e8;
+  background:linear-gradient(180deg,#5a8a9a 0%,#3a6a7a 100%);
+  border:none; padding:6px 16px; border-radius:2px;
+  text-decoration:none;
+  transition:opacity .2s;
+}
+.tile-x-link:hover { opacity:.85; }
+.tile-modal-btn {
+  width:100%;
+  font-family:'Shippori Mincho',serif;
+  font-size:11px; letter-spacing:2px;
+  color:#7a5a2a;
+  background:#f5e9c0;
+  border:none; border-top:1px solid #d4b87a;
+  padding:10px; cursor:pointer;
+  transition:background .2s;
+}
+.tile-modal-btn:hover { background:#ede0b0; }
+
+/* ===== 投稿案内カード ===== */
+.submit-card {
+  width:100%;
+  background:#fff;
+  border:1px solid #ccc;
+  filter:drop-shadow(0 2px 8px rgba(0,0,0,.15));
+}
+.submit-hd {
+  background:#f5e9c0;
+  border-bottom:2px solid #d4955a;
+  padding:8px 16px;
+  font-family:'Shippori Mincho',serif;
+  font-size:10px; font-weight:800;
+  color:#5a3e1b; letter-spacing:3px;
+}
+.submit-body {
+  padding:12px 16px;
+  background:#fffdf5;
+}
+.submit-text {
+  font-size:11px; color:#7a5a2a;
+  line-height:1.9; letter-spacing:0.5px;
+  margin-bottom:12px;
+}
+.submit-btn {
+  display:block; width:100%;
+  font-family:'Shippori Mincho',serif;
+  font-size:12px; letter-spacing:2px;
+  color:#fff8e8;
+  background:linear-gradient(180deg,#d4955a 0%,#b07040 100%);
+  border:none; padding:10px;
+  border-radius:2px; cursor:pointer;
+  text-align:center; text-decoration:none;
+  transition:opacity .2s;
+}
+.submit-btn:hover { opacity:.85; }
+
+/* ===== フッター ===== */
+.cal-footer {
+  width:100%;
+  display:flex; justify-content:space-between; align-items:center;
+  padding:10px 4px;
+}
+.footer-name {
+  font-family:'Shippori Mincho',serif;
+  font-size:11px; color:#8a6840; letter-spacing:2px;
+}
+.footer-links {
+  display:flex; gap:10px;
+}
+.footer-links a {
+  font-size:9px; color:#8a6840; text-decoration:none;
+  letter-spacing:1px; opacity:.8;
+}
+.footer-links a:hover { opacity:1; }
+</style>
+</head>
+<body>
+
+<div class="wall-bg"></div>
+<div class="wall-bottom"></div>
+
+<div class="page-wrap">
+
+  <!-- 戻るボタン -->
+  <a href="index.html" class="back-btn">← カレンダーに戻る</a>
+
+  <!-- ヘッダーカード -->
+  <div class="header-card">
+    <div class="header-clip">
+      <div class="header-clip-text">MAAYA TAKEDA</div>
+    </div>
+    <div class="header-body">
+      <div class="header-title">ファンモザイク</div>
+      <div class="header-sub">MOSAIC ART</div>
+    </div>
+    <div class="header-info">
+      <div class="header-date" id="headerDate">読み込み中...</div>
+      <div class="header-count" id="headerCount"></div>
+    </div>
+  </div>
+
+  <!-- 自分の写真を探す -->
+  <div class="search-card">
+    <span class="search-label">— 自分の写真を探す —</span>
+    <div class="search-row">
+      <input class="search-input" id="searchInput"
+        type="text" placeholder="ニックネームを入力"
+        autocomplete="off" autocorrect="off" spellcheck="false">
+      <button class="search-btn" onclick="searchTiles()">探す</button>
+    </div>
+    <div class="search-hint">投稿時のニックネームで光るタイルを見つけられます</div>
+    <div class="search-clear" id="searchClear" onclick="clearSearch()">検索をクリア</div>
+  </div>
+
+  <!-- モザイク本体 -->
+  <div class="mosaic-card">
+    <div class="mosaic-clip"></div>
+
+    <div class="mosaic-viewport" id="mosaicViewport">
+
+      <!-- ローディング -->
+      <div class="mosaic-loading" id="mosaicLoading">
+        <div class="loading-kanji">彩</div>
+        <div class="loading-text">LOADING MOSAIC...</div>
+      </div>
+
+      <!-- データなし -->
+      <div class="mosaic-empty" id="mosaicEmpty" style="display:none;">
+        <div class="empty-kanji">待</div>
+        <div class="empty-text">
+          本日のモザイクはまだ準備中です<br>
+          毎朝3:00に更新されます<br><br>
+          あなたの写真を投稿して<br>明日のモザイクに参加しよう
+        </div>
+      </div>
+
+      <!-- グリッド -->
+      <div class="mosaic-grid-wrap" id="mosaicGrid"></div>
+
+      <!-- ズームボタン -->
+      <div class="zoom-ctrl" id="zoomCtrl" style="display:none;">
+        <button class="zoom-btn" onclick="zoomIn()">＋</button>
+        <button class="zoom-btn" onclick="zoomOut()">−</button>
+        <button class="zoom-btn" onclick="zoomReset()" style="font-size:11px;letter-spacing:0">全体</button>
+      </div>
+    </div>
+
+    <div class="mosaic-footer-bar">
+      <div class="mosaic-footer-text">タイルをタップ → 投稿者を確認</div>
+      <div class="mosaic-footer-text" id="mosaicFooterScale">等倍</div>
+    </div>
+  </div>
+
+  <!-- 投稿案内 -->
+  <div class="submit-card">
+    <div class="submit-hd">あなたの写真を投稿する</div>
+    <div class="submit-body">
+      <div class="submit-text">
+        投稿した写真が明日のモザイクアートを<br>
+        構成するピースになります。<br>
+        ニックネームを登録しておくと<br>
+        採用されたか確認できます。
+      </div>
+      <a href="https://forms.google.com/XXXX" target="_blank" class="submit-btn">
+        写真を投稿する →
+      </a>
+    </div>
+  </div>
+
+  <!-- フッター -->
+  <div class="cal-footer">
+    <span class="footer-name">武田舞彩</span>
+    <div class="footer-links">
+      <a href="https://maayatakeda-3.jimdosite.com/" target="_blank" rel="noopener">OFFICIAL</a>
+      <a href="https://www.instagram.com/maaya__takeda/" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://x.com/MAAYA__TAKEDA" target="_blank" rel="noopener">X</a>
+      <a href="https://www.tiktok.com/@maaya_takeda" target="_blank" rel="noopener">TikTok</a>
+    </div>
+  </div>
+
+</div><!-- /page-wrap -->
+
+<!-- タイル詳細モーダル -->
+<div class="tile-modal-bg" id="tileModalBg" onclick="if(event.target===this)closeTileModal()">
+  <div class="tile-modal">
+    <div class="tile-modal-clip"></div>
+    <div class="tile-modal-hd">
+      <span class="tile-modal-title">TILE INFO</span>
+      <span class="tile-modal-close" onclick="closeTileModal()">✕</span>
+    </div>
+    <div class="tile-modal-body">
+      <div class="tile-img-wrap">
+        <img id="tileModalImg" src="" alt="">
+      </div>
+      <div class="tile-contributor">
+        <span class="tile-nickname" id="tileModalNickname"></span>
+        <span class="tile-xid" id="tileModalXid"></span>
+        <span class="tile-position" id="tileModalPos"></span>
+      </div>
+      <a class="tile-x-link" id="tileModalLink" href="#" target="_blank" rel="noopener"
+         style="display:none;">X の投稿を見る →</a>
+    </div>
+    <button class="tile-modal-btn" onclick="closeTileModal()">— CLOSE —</button>
+  </div>
+</div>
+
+<script>
+// ===== 設定 =====
+const TILE_SIZE  = 40;   // CSSタイルサイズ(px)
+const GRID_W     = 30;
+const GRID_H     = 40;
+
+// ===== 状態 =====
+let tilesData    = [];
+let currentScale = 1;
+let panX = 0, panY = 0;
+let isPanning    = false;
+let panStartX, panStartY, panOriginX, panOriginY;
+let highlightedNick = null;
+
+const viewport   = document.getElementById('mosaicViewport');
+const gridWrap   = document.getElementById('mosaicGrid');
+const scaleLabel = document.getElementById('mosaicFooterScale');
+
+// ===== 日付ユーティリティ =====
+function p2(n){ return String(n).padStart(2,'0'); }
+function todayStr(){
+  const d = new Date();
+  return `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;
+}
+
+// ===== JSONの読み込み =====
+async function loadMosaicData(){
+  try {
+    // latest.json から今日のJSONパスを取得
+    const latestRes = await fetch(`./data/latest.json?t=${Date.now()}`);
+    if(!latestRes.ok) throw new Error('latest.json なし');
+    const latest = await latestRes.json();
+
+    const dataRes = await fetch(`${latest.json}?t=${Date.now()}`);
+    if(!dataRes.ok) throw new Error('mosaic JSON なし');
+    const data = await dataRes.json();
+    return data;
+  } catch(e) {
+    console.warn('モザイクデータ未生成:', e.message);
+    return null;
+  }
+}
+
+// ===== グリッド構築 =====
+function buildGrid(data){
+  document.getElementById('mosaicLoading').style.display = 'none';
+  document.getElementById('mosaicEmpty').style.display   = 'none';
+  document.getElementById('zoomCtrl').style.display      = 'flex';
+
+  tilesData = data.tiles;
+  const tileW = Math.floor(viewport.clientWidth / GRID_W);
+  const tileH = tileW;  // 正方形
+
+  gridWrap.innerHTML = '';
+  gridWrap.style.width  = `${tileW * GRID_W}px`;
+  gridWrap.style.height = `${tileH * GRID_H}px`;
+
+  data.tiles.forEach((tile, idx) => {
+    const el = document.createElement('div');
+    el.className = 'mosaic-tile';
+    el.style.width  = `${tileW}px`;
+    el.style.height = `${tileH}px`;
+    el.style.backgroundImage = `url('${tile.image_path}')`;
+    el.dataset.idx = idx;
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      showTileModal(tile);
+    });
+    gridWrap.appendChild(el);
+  });
+
+  // ヘッダー更新
+  document.getElementById('headerDate').textContent =
+    `${data.date.replace(/-/g,'/')} のモザイク`;
+
+  const contributors = new Set(
+    data.tiles.map(t => t.contributor).filter(c => c !== '匿名ファン')
+  );
+  document.getElementById('headerCount').textContent =
+    `参加者 ${contributors.size}名`;
+
+  // ピンチ・パン初期化
+  initPanZoom();
+}
+
+// ===== ズーム・パン =====
+function applyTransform(){
+  gridWrap.style.transform = `translate(${panX}px,${panY}px) scale(${currentScale})`;
+  scaleLabel.textContent   = `${Math.round(currentScale*100)}%`;
+}
+
+function clampPan(){
+  const vW = viewport.clientWidth;
+  const vH = viewport.clientHeight;
+  const gW = gridWrap.offsetWidth  * currentScale;
+  const gH = gridWrap.offsetHeight * currentScale;
+  const maxX = 0;
+  const minX = Math.min(0, vW - gW);
+  const maxY = 0;
+  const minY = Math.min(0, vH - gH);
+  panX = Math.min(maxX, Math.max(minX, panX));
+  panY = Math.min(maxY, Math.max(minY, panY));
+}
+
+function zoomIn(){
+  currentScale = Math.min(currentScale * 1.4, 8);
+  clampPan(); applyTransform();
+}
+function zoomOut(){
+  currentScale = Math.max(currentScale / 1.4, 0.5);
+  clampPan(); applyTransform();
+}
+function zoomReset(){
+  currentScale = 1; panX = 0; panY = 0;
+  applyTransform();
+}
+
+function initPanZoom(){
+  // --- タッチ ---
+  let lastDist  = null;
+  let lastTouchX, lastTouchY;
+
+  viewport.addEventListener('touchstart', e => {
+    if(e.touches.length === 1){
+      lastTouchX = e.touches[0].clientX - panX;
+      lastTouchY = e.touches[0].clientY - panY;
+    } else if(e.touches.length === 2){
+      lastDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+    }
+    e.preventDefault();
+  }, {passive:false});
+
+  viewport.addEventListener('touchmove', e => {
+    if(e.touches.length === 1){
+      panX = e.touches[0].clientX - lastTouchX;
+      panY = e.touches[0].clientY - lastTouchY;
+      clampPan(); applyTransform();
+    } else if(e.touches.length === 2){
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      if(lastDist){
+        currentScale = Math.min(8, Math.max(0.5, currentScale * dist / lastDist));
+        clampPan(); applyTransform();
+      }
+      lastDist = dist;
+    }
+    e.preventDefault();
+  }, {passive:false});
+
+  viewport.addEventListener('touchend', e => {
+    if(e.touches.length < 2) lastDist = null;
+  });
+
+  // --- マウス ---
+  viewport.addEventListener('mousedown', e => {
+    isPanning   = true;
+    panStartX   = e.clientX - panX;
+    panStartY   = e.clientY - panY;
+  });
+  window.addEventListener('mousemove', e => {
+    if(!isPanning) return;
+    panX = e.clientX - panStartX;
+    panY = e.clientY - panStartY;
+    clampPan(); applyTransform();
+  });
+  window.addEventListener('mouseup', () => { isPanning = false; });
+
+  // ホイールズーム
+  viewport.addEventListener('wheel', e => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? 0.85 : 1.18;
+    currentScale = Math.min(8, Math.max(0.5, currentScale * delta));
+    clampPan(); applyTransform();
+  }, {passive:false});
+
+  // viewport の高さをグリッドに合わせる
+  const naturalH = gridWrap.offsetHeight || GRID_H * Math.floor(viewport.clientWidth / GRID_W);
+  viewport.style.height = Math.min(naturalH, window.innerHeight * 0.6) + 'px';
+}
+
+// ===== 検索 =====
+function searchTiles(){
+  const query = document.getElementById('searchInput').value.trim();
+  if(!query){ clearSearch(); return; }
+
+  highlightedNick = query.toLowerCase();
+
+  const tiles = document.querySelectorAll('.mosaic-tile');
+  let found = 0;
+
+  tiles.forEach((el, idx) => {
+    const tile = tilesData[idx];
+    const nick = (tile?.contributor || '').toLowerCase();
+    if(nick.includes(highlightedNick)){
+      el.classList.add('highlight');
+      found++;
+    } else {
+      el.classList.remove('highlight');
+    }
+  });
+
+  document.getElementById('searchClear').style.display = 'block';
+
+  if(found > 0){
+    // 最初にヒットしたタイルにスクロール
+    const firstHit = document.querySelector('.mosaic-tile.highlight');
+    if(firstHit){
+      const idx     = parseInt(firstHit.dataset.idx);
+      const row     = Math.floor(idx / GRID_W);
+      const col     = idx % GRID_W;
+      const tileW   = gridWrap.offsetWidth / GRID_W;
+      const tileH   = gridWrap.offsetHeight / GRID_H;
+      panX = viewport.clientWidth  / 2 - (col + 0.5) * tileW * currentScale;
+      panY = viewport.clientHeight / 2 - (row + 0.5) * tileH * currentScale;
+      clampPan(); applyTransform();
+    }
+  } else {
+    alert(`「${query}」のタイルは見つかりませんでした`);
+  }
+}
+
+function clearSearch(){
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchClear').style.display = 'none';
+  highlightedNick = null;
+  document.querySelectorAll('.mosaic-tile.highlight').forEach(el => el.classList.remove('highlight'));
+}
+
+document.getElementById('searchInput').addEventListener('keydown', e => {
+  if(e.key === 'Enter') searchTiles();
+});
+
+// ===== タイル詳細モーダル =====
+function showTileModal(tile){
+  document.getElementById('tileModalImg').src      = tile.image_path;
+  document.getElementById('tileModalNickname').textContent = tile.contributor || '匿名ファン';
+  document.getElementById('tileModalXid').textContent     = tile.x_id ? `@${tile.x_id.replace('@','')}` : '';
+  document.getElementById('tileModalPos').textContent     = `位置：行${tile.row+1} 列${tile.col+1}`;
+
+  const link = document.getElementById('tileModalLink');
+  if(tile.post_url){
+    link.href = tile.post_url;
+    link.style.display = 'inline-block';
+  } else {
+    link.style.display = 'none';
+  }
+
+  document.getElementById('tileModalBg').classList.add('open');
+}
+function closeTileModal(){
+  document.getElementById('tileModalBg').classList.remove('open');
+}
+
+// ===== 初期化 =====
+async function init(){
+  // ヘッダー日付を暫定表示
+  document.getElementById('headerDate').textContent = `${todayStr().replace(/-/g,'/')} のモザイク`;
+
+  const data = await loadMosaicData();
+
+  if(!data || !data.tiles || data.tiles.length === 0){
+    document.getElementById('mosaicLoading').style.display = 'none';
+    document.getElementById('mosaicEmpty').style.display   = 'flex';
+    return;
+  }
+
+  buildGrid(data);
+}
+
+init();
+</script>
+</body>
+</html>
