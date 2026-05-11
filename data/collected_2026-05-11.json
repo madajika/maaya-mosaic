@@ -12,5 +12,12 @@
     "x_id": "@test_user",
     "post_url": null,
     "source": "form"
+  },
+  {
+    "image_path": "./data/tiles/2026-05-11/テストファン_0.jpg",
+    "contributor": "テストファン",
+    "x_id": "@test_user",
+    "post_url": null,
+    "source": "form"
   }
 ]
