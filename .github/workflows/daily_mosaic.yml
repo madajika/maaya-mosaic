@@ -23,6 +23,7 @@ jobs:
 
       - name: モザイク生成を実行
         run: |
+          export PYTHONPATH=$PYTHONPATH:scripts
           python scripts/collect_images.py
           python scripts/generate_mosaic.py
           python scripts/build_json.py
