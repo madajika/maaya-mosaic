@@ -67,8 +67,8 @@ def build():
     # latest.json を更新（mosaic.html が毎回これを読む）
     latest = {
         "date":  TODAY,
-        "json":  f"./data/mosaic_{TODAY}.json",
-        "image": f"./data/mosaic_{TODAY}.jpg"
+        "json":  f"data/mosaic_{TODAY}.json",
+        "image": f"data/mosaic_{TODAY}.jpg"
     }
     with open(LATEST_JSON, "w", encoding="utf-8") as f:
         json.dump(latest, f, ensure_ascii=False, indent=2)
