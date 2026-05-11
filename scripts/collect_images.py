@@ -22,7 +22,7 @@ def collect():
         # image_path が実際に存在するか確認してフィルタ
         valid = []
         for item in collected:
-            path = Path("..") / item["image_path"].lstrip("./")
+            path = Path(item["image_path"].lstrip("./"))
             if path.exists():
                 valid.append(item)
             else:
