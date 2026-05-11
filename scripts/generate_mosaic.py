@@ -26,7 +26,7 @@ def load_tiles(collected: list) -> list:
     """写真を読み込んでタイルデータを作る"""
     tiles = []
     for item in collected:
-        path = Path("..") / item["image_path"].lstrip("./")
+        path = Path(item["image_path"].lstrip("./"))
         try:
             img  = Image.open(path).convert("RGB")
             img  = crop_square(img)
