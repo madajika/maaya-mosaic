@@ -16,9 +16,9 @@ OUTPUT_IMG  = Path(f"data/mosaic_{TODAY}.jpg")
 OUTPUT_JSON = Path(f"data/assignments_{TODAY}.json")
 TARGET_IMG  = Path("assets/main_photo.jpg")
 
-TILE_SIZE   = 40    # タイル1枚のピクセルサイズ
-GRID_W      = 30    # 横タイル数
-GRID_H      = 40    # 縦タイル数
+TILE_SIZE   = 20    # タイル1枚のピクセルサイズ
+GRID_W      = 40    # 横タイル数
+GRID_H      = 60    # 縦タイル数
 MIN_TILES   = 10    # 最低必要枚数（不足時は繰り返し使用）
 
 
