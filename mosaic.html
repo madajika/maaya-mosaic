@@ -247,19 +247,16 @@ body {
 
 /* ズームコントロール */
 .zoom-ctrl {
-  position:absolute; bottom:10px; right:10px;
-  display:flex; flex-direction:column; gap:4px;
-  z-index:20;
+  display:flex; flex-direction:row; gap:4px;
 }
 .zoom-btn {
-  width:32px; height:32px;
-  background:rgba(255,248,232,.92);
+  width:44px; height:30px;
+  background:#fff8e8;
   border:1px solid #d4b87a;
   border-radius:2px;
-  font-size:18px; color:#5a3e1b;
+  font-size:15px; color:#5a3e1b;
   display:flex; align-items:center; justify-content:center;
   cursor:pointer;
-  box-shadow:0 2px 6px rgba(0,0,0,.2);
   transition:background .15s;
 }
 .zoom-btn:hover { background:#f5e9c0; }
@@ -536,17 +533,19 @@ body {
       <!-- グリッド -->
       <div class="mosaic-grid-wrap" id="mosaicGrid"></div>
 
-      <!-- ズームボタン -->
-      <div class="zoom-ctrl" id="zoomCtrl" style="display:none;">
-        <button class="zoom-btn" onclick="zoomIn()">＋</button>
-        <button class="zoom-btn" onclick="zoomOut()">−</button>
-        <button class="zoom-btn" onclick="zoomReset()" style="font-size:11px;letter-spacing:0">全体</button>
-      </div>
+
     </div>
 
     <div class="mosaic-footer-bar">
       <div class="mosaic-footer-text">タイルをタップ → 投稿者を確認</div>
-      <div class="mosaic-footer-text" id="mosaicFooterScale">等倍</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="zoom-ctrl" id="zoomCtrl" style="display:none;">
+          <button class="zoom-btn" onclick="zoomIn()">＋</button>
+          <button class="zoom-btn" onclick="zoomOut()">−</button>
+          <button class="zoom-btn" onclick="zoomReset()" style="font-size:11px;letter-spacing:0;width:44px;">全体</button>
+        </div>
+        <div class="mosaic-footer-text" id="mosaicFooterScale">等倍</div>
+      </div>
     </div>
   </div>
 
@@ -560,7 +559,7 @@ body {
         ニックネームを登録しておくと<br>
         採用されたか確認できます。
       </div>
-      <a href="https://docs.google.com/forms/d/e/1FAIpQLSdvv6zAF7y1ZK5AOhRBL6AtBjbDoSARe0SbHjg-O2CeUxQpXg/viewform?usp=header" target="_blank" class="submit-btn">
+      <a href="https://forms.google.com/XXXX" target="_blank" class="submit-btn">
         写真を投稿する →
       </a>
     </div>
@@ -605,8 +604,8 @@ body {
 
 <script>
 // ===== 設定 =====
-const TILE_SIZE  = 20;   // CSSタイルサイズ(px)
-const GRID_W     = 60;
+const TILE_SIZE  = 40;   // CSSタイルサイズ(px)
+const GRID_W     = 30;
 const GRID_H     = 40;
 
 // ===== 状態 =====
