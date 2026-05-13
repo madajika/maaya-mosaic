@@ -652,12 +652,12 @@ function buildGrid(data){
   document.getElementById('zoomCtrl').style.display      = 'flex';
 
   tilesData = data.tiles;
-  const tileW = Math.floor(viewport.clientWidth / GRID_W);
+  const tileW = viewport.clientWidth / GRID_W;  // 端数あり・枠いっぱいに
   const tileH = tileW;  // 正方形
 
   gridWrap.innerHTML = '';
-  gridWrap.style.width  = `${tileW * GRID_W}px`;
-  gridWrap.style.height = `${tileH * GRID_H}px`;
+  gridWrap.style.width  = `${viewport.clientWidth}px`;
+  gridWrap.style.height = `${tileW * GRID_H}px`;
 
   data.tiles.forEach((tile, idx) => {
     const el = document.createElement('div');
@@ -783,9 +783,8 @@ function initPanZoom(){
   }, {passive:false});
 
   // viewport の高さをグリッドに合わせる
-  // 16:10比率でviewport高さを設定
-  const gridW = gridWrap.offsetWidth || viewport.clientWidth;
-  const naturalH = gridW * (GRID_H / GRID_W);
+  // グリッドの実際の高さにviewportを合わせる
+  const naturalH = tileW * GRID_H;
   viewport.style.height = Math.min(naturalH, window.innerHeight * 0.75) + 'px';
 }
 
