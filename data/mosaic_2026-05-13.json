@@ -1,10 +1,10 @@
 {
   "date": "2026-05-13",
   "mosaic_image": "./data/mosaic_2026-05-13.jpg",
-  "grid_w": 60,
-  "grid_h": 40,
+  "grid_w": 40,
+  "grid_h": 60,
   "tile_size": 20,
-  "total_contributors": 0,
+  "total_contributors": 1,
   "tiles": [
     {
       "row": 0,
