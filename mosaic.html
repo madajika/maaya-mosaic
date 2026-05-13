@@ -604,8 +604,8 @@ body {
 
 <script>
 // ===== 設定 =====
-const TILE_SIZE  = 40;   // CSSタイルサイズ(px)
-const GRID_W     = 30;
+const TILE_SIZE  = 20;   // CSSタイルサイズ(px)
+const GRID_W     = 64;
 const GRID_H     = 40;
 
 // ===== 状態 =====
@@ -783,8 +783,10 @@ function initPanZoom(){
   }, {passive:false});
 
   // viewport の高さをグリッドに合わせる
-  const naturalH = gridWrap.offsetHeight || GRID_H * Math.floor(viewport.clientWidth / GRID_W);
-  viewport.style.height = Math.min(naturalH, window.innerHeight * 0.6) + 'px';
+  // 16:10比率でviewport高さを設定
+  const gridW = gridWrap.offsetWidth || viewport.clientWidth;
+  const naturalH = gridW * (GRID_H / GRID_W);
+  viewport.style.height = Math.min(naturalH, window.innerHeight * 0.75) + 'px';
 }
 
 // ===== 検索 =====
