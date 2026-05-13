@@ -15,9 +15,9 @@ MOSAIC_IMG       = Path(f"data/mosaic_{TODAY}.jpg")
 OUTPUT_JSON      = Path(f"data/mosaic_{TODAY}.json")
 LATEST_JSON      = Path("data/latest.json")
 
-GRID_W     = 60
+GRID_W     = 30
 GRID_H     = 40
-TILE_SIZE  = 20
+TILE_SIZE  = 40
 
 
 def build():
@@ -35,7 +35,7 @@ def build():
     with open(ASSIGNMENTS_JSON, encoding="utf-8") as f:
         assignments = json.load(f)
 
-    # 投稿者数をカウント（匿名除く）
+    # 投稿者数をカウント（ニックネームの種類数）
     collected = []
     if COLLECTED_JSON.exists():
         with open(COLLECTED_JSON, encoding="utf-8") as f:
@@ -43,7 +43,7 @@ def build():
 
     contributors = set(
         c["contributor"] for c in collected
-        if c.get("contributor") and c["contributor"] != "匿名ファン"
+        if c.get("contributor")
     )
 
     # サイト用JSON生成
