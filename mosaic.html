@@ -654,7 +654,7 @@ body {
     <div class="submit-hd">あなたの写真を投稿する</div>
     <div class="submit-body">
       <div class="submit-text">投稿した写真が明日のモザイクアートを構成するピースになります。ニックネームを登録しておくと採用されたか確認できます。</div>
-      <a href="https://forms.google.com/XXXX" target="_blank" class="submit-btn">
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSdvv6zAF7y1ZK5AOhRBL6AtBjbDoSARe0SbHjg-O2CeUxQpXg/viewform" target="_blank" class="submit-btn">
         写真を投稿する →
       </a>
       <a href="index.html" class="back-to-cal">← カレンダーに戻る</a>
@@ -957,7 +957,7 @@ document.getElementById('searchInput').addEventListener('keydown', e => {
 // ===== タイル詳細モーダル =====
 function showTileModal(tile){
   document.getElementById('tileModalImg').src      = tile.image_path;
-  document.getElementById('tileModalNickname').textContent = tile.contributor || '匿名ファン';
+  document.getElementById('tileModalNickname').textContent = tile.contributor || '';
   document.getElementById('tileModalXid').textContent     = tile.x_id ? `@${tile.x_id.replace('@','')}` : '';
   document.getElementById('tileModalPos').textContent     = `位置：行${tile.row+1} 列${tile.col+1}`;
 
