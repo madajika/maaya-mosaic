@@ -470,12 +470,90 @@ body {
   letter-spacing:1px; opacity:.8;
 }
 .footer-links a:hover { opacity:1; }
+
+/* ===== 釘＋紐 吊り下げシステム ===== */
+.hanger-wrap {
+  position:relative;
+  width:200px;
+  height:82px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  margin-bottom:-2px;
+  z-index:10;
+}
+.nail {
+  position:absolute;
+  top:0; left:50%;
+  transform:translateX(-50%);
+  z-index:12;
+  display:flex; flex-direction:column; align-items:center;
+}
+.nail-head {
+  width:18px; height:18px; border-radius:50%;
+  background:radial-gradient(circle at 38% 32%, #e8e8e8 0%, #aaa 45%, #666 100%);
+  box-shadow:0 2px 5px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.4);
+  position:relative;
+}
+.nail-head::after {
+  content:''; position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%) rotate(30deg);
+  width:9px; height:1.5px;
+  background:rgba(0,0,0,.35); border-radius:1px;
+}
+.nail-shaft {
+  width:4px; height:12px;
+  background:linear-gradient(180deg,#bbb 0%,#888 60%,#666 100%);
+  border-radius:0 0 2px 2px;
+}
+.rope-svg {
+  position:absolute;
+  top:8px; left:50%;
+  transform:translateX(-50%);
+  z-index:11;
+  overflow:visible;
+}
 </style>
 </head>
 <body>
 
 <div class="wall-bg"></div>
 <div class="wall-bottom"></div>
+
+  <!-- 釘＋紐 -->
+  <div class="hanger-wrap">
+    <div class="nail">
+      <div class="nail-head"></div>
+      <div class="nail-shaft"></div>
+    </div>
+    <svg class="rope-svg" width="200" height="80" viewBox="0 0 200 80">
+      <defs>
+        <pattern id="ropePattern" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(80)">
+          <rect width="6" height="6" fill="#c89a55"/>
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#9a7240" stroke-width="1.5" opacity=".6"/>
+          <line x1="3" y1="0" x2="3" y2="6" stroke="#e0b870" stroke-width=".8" opacity=".4"/>
+        </pattern>
+        <filter id="ropeShadow">
+          <feDropShadow dx="1" dy="1" stdDeviation="1" flood-opacity=".25"/>
+        </filter>
+      </defs>
+      <path d="M 100,14 C 88,18 55,30 30,78"
+            fill="none" stroke="url(#ropePattern)" stroke-width="5.5"
+            stroke-linecap="round" filter="url(#ropeShadow)"/>
+      <path d="M 100,14 C 112,18 145,30 170,78"
+            fill="none" stroke="url(#ropePattern)" stroke-width="5.5"
+            stroke-linecap="round" filter="url(#ropeShadow)"/>
+      <path d="M 88,20 Q 100,8 112,20"
+            fill="none" stroke="url(#ropePattern)" stroke-width="5"
+            stroke-linecap="round"/>
+      <path d="M 100,14 C 88,18 55,30 30,78"
+            fill="none" stroke="rgba(80,50,10,.15)" stroke-width="7"
+            stroke-linecap="round"/>
+      <path d="M 100,14 C 112,18 145,30 170,78"
+            fill="none" stroke="rgba(80,50,10,.15)" stroke-width="7"
+            stroke-linecap="round"/>
+    </svg>
+  </div>
 
 <div class="page-wrap">
 
@@ -679,11 +757,10 @@ function buildGrid(data){
   document.getElementById('headerDate').textContent =
     `${data.date.replace(/-/g,'/')} のモザイク`;
 
-  const contributors = new Set(
-    data.tiles.map(t => t.contributor).filter(c => c !== '匿名ファン')
-  );
+  // total_contributorsをJSONから直接取得（キャッシュ不要・常に最新）
+  const contributorCount = data.total_contributors || 0;
   document.getElementById('headerCount').textContent =
-    `参加者 ${contributors.size}名`;
+    `参加者 ${contributorCount}名`;
 
   // ピンチ・パン初期化
   initPanZoom();
