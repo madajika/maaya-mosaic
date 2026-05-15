@@ -83,11 +83,11 @@ body {
 .hanger-wrap {
   position:relative;
   width:200px;
-  height:82px;
+  height:52px;
   display:flex;
   flex-direction:column;
   align-items:center;
-  margin-bottom:-2px;
+  margin-bottom:-4px;
   z-index:10;
 }
 .nail {
@@ -537,9 +537,8 @@ body {
       <div class="nail-shaft"></div>
     </div>
     <!-- 紐：釘頭に引っかかったUの字 → 両端がカレンダー上端へ -->
-    <svg class="rope-svg" width="200" height="80" viewBox="0 0 200 80">
+    <svg class="rope-svg" width="200" height="50" viewBox="0 0 200 50">
       <defs>
-        <!-- 麻紐テクスチャ：太めのストロークにパターン重ね -->
         <pattern id="ropePattern" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(80)">
           <rect width="6" height="6" fill="#c89a55"/>
           <line x1="0" y1="0" x2="0" y2="6" stroke="#9a7240" stroke-width="1.5" opacity=".6"/>
@@ -549,26 +548,23 @@ body {
           <feDropShadow dx="1" dy="1" stdDeviation="1" flood-opacity=".25"/>
         </filter>
       </defs>
-
-      <!-- 左の紐：釘付近(100,14)から左下(30,78)へカーブ -->
-      <path d="M 100,14 C 88,18 55,30 30,78"
+      <!-- 左の紐：短くして終点を45→28に -->
+      <path d="M 100,14 C 90,16 65,22 42,48"
             fill="none" stroke="url(#ropePattern)" stroke-width="5.5"
             stroke-linecap="round" filter="url(#ropeShadow)"/>
-      <!-- 右の紐：釘付近(100,14)から右下(170,78)へカーブ -->
-      <path d="M 100,14 C 112,18 145,30 170,78"
+      <!-- 右の紐 -->
+      <path d="M 100,14 C 110,16 135,22 158,48"
             fill="none" stroke="url(#ropePattern)" stroke-width="5.5"
             stroke-linecap="round" filter="url(#ropeShadow)"/>
-
-      <!-- 釘に引っかかっているループ部分 -->
+      <!-- ループ -->
       <path d="M 88,20 Q 100,8 112,20"
             fill="none" stroke="url(#ropePattern)" stroke-width="5"
             stroke-linecap="round"/>
-
-      <!-- 紐の影（奥行き感） -->
-      <path d="M 100,14 C 88,18 55,30 30,78"
+      <!-- 影 -->
+      <path d="M 100,14 C 90,16 65,22 42,48"
             fill="none" stroke="rgba(80,50,10,.15)" stroke-width="7"
             stroke-linecap="round"/>
-      <path d="M 100,14 C 112,18 145,30 170,78"
+      <path d="M 100,14 C 110,16 135,22 158,48"
             fill="none" stroke="rgba(80,50,10,.15)" stroke-width="7"
             stroke-linecap="round"/>
     </svg>
