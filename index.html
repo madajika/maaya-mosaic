@@ -370,6 +370,8 @@ body {
 
 /* ===== ストリークセクション ===== */
 .streak-sec {
+  padding-top:6px !important;
+  padding-bottom:6px !important;
   padding:12px 13px; border-bottom:2px solid #d4b87a;
   background:#fffdf5;
 }
@@ -390,7 +392,7 @@ body {
 
 /* ドット */
 .dots-wrap {
-  display:grid; grid-template-columns:repeat(10,1fr); gap:4px;
+  display:grid; grid-template-columns:repeat(15,1fr); gap:3px;
 }
 .dot {
   aspect-ratio:1;
@@ -404,7 +406,7 @@ body {
   content:attr(data-n);
   position:absolute; inset:0;
   display:flex; align-items:center; justify-content:center;
-  font-size:7px; color:#d4c090;
+  font-size:6px; color:#d4c090;
 }
 .dot.done { background:#e8a040; border-color:#c88020; }
 .dot.done::after { color:rgba(255,255,255,.6); }
