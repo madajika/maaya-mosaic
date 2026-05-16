@@ -337,10 +337,11 @@ body {
   display:inline-flex; align-items:center; justify-content:center; font-size:8px;
 }
 .mini-divider { background:#d4b87a; }
-.mini-grid .live-day-wrap {
+.mini-grid span.live-day {
   display:inline-flex; align-items:center; justify-content:center;
-  background:#b06a30; color:#fff; border-radius:50%;
-  width:14px; height:14px; font-size:8px;
+  background:transparent; color:#b06a30 !important;
+  border:1.5px solid #b06a30; border-radius:2px;
+  width:13px; height:13px; font-size:8px; font-weight:700;
 }
 
 /* ===== LIVEセクション ===== */
@@ -745,10 +746,14 @@ function buildMiniCal(y,m,todayD){
   for(let d=1;d<=days;d++){
     const dow=(first+d-1)%7;
     const isLive=liveDays.includes(d);
-    const cls=[dow===0?'sc':dow===6?'ss':'', isLive?'live-day':''].filter(Boolean).join(' ');
-    h += d===todayD
-      ? `<div class="${isLive?'live-day':''}"><span class="td">${d}</span></div>`
-      : `<div class="${cls}">${d}</div>`;
+    const colorCls=dow===0?'sc':dow===6?'ss':'';
+    if(d===todayD){
+      h+=`<div><span class="td">${d}</span></div>`;
+    } else if(isLive){
+      h+=`<div><span class="live-day">${d}</span></div>`;
+    } else {
+      h+=`<div class="${colorCls}">${d}</div>`;
+    }
   }
   return h;
 }
