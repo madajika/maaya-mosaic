@@ -317,7 +317,7 @@ body {
 .fortune-big { font-size:18px; font-weight:900; display:block; color:#b06a30; }
 .fortune-sm  { font-size:8px; color:#9a7a50; }
 .msg-text { font-size:13px; font-weight:700; line-height:1.65; flex:1; letter-spacing:.4px; color:#3a2a0e; }
-.msg-src { font-size:9px; color:#b8a080; flex-shrink:0; writing-mode:vertical-rl; }
+.msg-src { font-size:9px; color:#b8a080; position:absolute; bottom:5px; right:8px; writing-mode:horizontal-tb; }
 
 /* ===== ミニカレンダー ===== */
 .mini-row {
@@ -337,6 +337,11 @@ body {
   display:inline-flex; align-items:center; justify-content:center; font-size:8px;
 }
 .mini-divider { background:#d4b87a; }
+.mini-grid .live-day-wrap {
+  display:inline-flex; align-items:center; justify-content:center;
+  background:#b06a30; color:#fff; border-radius:50%;
+  width:14px; height:14px; font-size:8px;
+}
 
 /* ===== LIVEセクション ===== */
 .live-sec {
@@ -730,13 +735,19 @@ function buildMiniCal(y,m,todayD){
   const WD=['日','月','火','水','木','金','土'];
   const first=new Date(y,m-1,1).getDay();
   const days=new Date(y,m,0).getDate();
+  // LIVE日を取得（同じ年月のもの）
+  const liveDays=LIVES
+    .map(l=>new Date(l.date))
+    .filter(ld=>ld.getFullYear()===y&&ld.getMonth()===m-1)
+    .map(ld=>ld.getDate());
   let h=WD.map((w,i)=>`<div class="hd${i===0?' sc':i===6?' ss':''}">${w}</div>`).join('');
   for(let i=0;i<first;i++) h+='<div></div>';
   for(let d=1;d<=days;d++){
     const dow=(first+d-1)%7;
-    const cls=dow===0?'sc':dow===6?'ss':'';
+    const isLive=liveDays.includes(d);
+    const cls=[dow===0?'sc':dow===6?'ss':'', isLive?'live-day':''].filter(Boolean).join(' ');
     h += d===todayD
-      ? `<div><span class="td">${d}</span></div>`
+      ? `<div class="${isLive?'live-day':''}"><span class="td">${d}</span></div>`
       : `<div class="${cls}">${d}</div>`;
   }
   return h;
