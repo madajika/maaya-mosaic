@@ -15,8 +15,8 @@ MOSAIC_IMG       = Path(f"data/mosaic_{TODAY}.jpg")
 OUTPUT_JSON      = Path(f"data/mosaic_{TODAY}.json")
 LATEST_JSON      = Path("data/latest.json")
 
-GRID_W     = 80
-GRID_H     = 53
+GRID_W     = 60
+GRID_H     = 60
 TILE_SIZE  = 15
 
 
