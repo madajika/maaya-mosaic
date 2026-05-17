@@ -15,9 +15,9 @@ MOSAIC_IMG       = Path(f"data/mosaic_{TODAY}.jpg")
 OUTPUT_JSON      = Path(f"data/mosaic_{TODAY}.json")
 LATEST_JSON      = Path("data/latest.json")
 
-GRID_W     = 60
-GRID_H     = 60
-TILE_SIZE  = 15
+GRID_W     = 90
+GRID_H     = 90
+TILE_SIZE  = 10
 
 
 def build():
